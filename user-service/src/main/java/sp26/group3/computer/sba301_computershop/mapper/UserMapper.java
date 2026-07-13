@@ -1,0 +1,30 @@
+package sp26.group3.computer.sba301_computershop.mapper;
+
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import sp26.group3.computer.sba301_computershop.dto.request.UserCreationRequest;
+import sp26.group3.computer.sba301_computershop.dto.request.UserUpdateRequest;
+import sp26.group3.computer.sba301_computershop.dto.response.UserResponse;
+import sp26.group3.computer.sba301_computershop.entity.User;
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    User toUser(UserCreationRequest request);
+
+    @Mapping(source = "role.name", target = "roleName")
+    UserResponse toUserResponse(User user);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    void updateUser(@MappingTarget User user, UserUpdateRequest request);
+}

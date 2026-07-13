@@ -1,0 +1,176 @@
+package sp26.group3.computer.sba301_computershop.controller;
+
+import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+import sp26.group3.computer.sba301_computershop.dto.request.AddPromotionToBrandRequest;
+import sp26.group3.computer.sba301_computershop.dto.request.AddPromotionToCategoryRequest;
+import sp26.group3.computer.sba301_computershop.dto.request.AddPromotionToProductsRequest;
+import sp26.group3.computer.sba301_computershop.dto.request.PromotionCreationRequest;
+import sp26.group3.computer.sba301_computershop.dto.request.PromotionUpdateRequest;
+import sp26.group3.computer.sba301_computershop.dto.response.ApiResponse;
+import sp26.group3.computer.sba301_computershop.dto.response.PagedResponse;
+import sp26.group3.computer.sba301_computershop.dto.response.PromotionResponse;
+import sp26.group3.computer.sba301_computershop.service.PromotionService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/promotions")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class PromotionController {
+
+    PromotionService promotionService;
+
+    // ================= CREATE =================
+    @PostMapping
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<PromotionResponse> createPromotion(@RequestBody @Valid PromotionCreationRequest request) {
+        log.info("[POST] /promotions - Create promotion");
+
+        PromotionResponse result = promotionService.createPromotion(request);
+
+        log.info("[POST] /promotions - SUCCESS | promotionId={}", result.getPromotionId());
+
+        ApiResponse<PromotionResponse> response = new ApiResponse<>();
+        response.setResult(result);
+        return response;
+    }
+
+    // ================= READ ALL =================
+    @GetMapping
+    public ApiResponse<List<PromotionResponse>> getAllPromotions() {
+        log.info("[GET] /promotions - Get all promotions");
+
+        List<PromotionResponse> result = promotionService.getAllPromotions();
+
+        log.info("[GET] /promotions - Total promotions={}", result.size());
+
+        ApiResponse<List<PromotionResponse>> response = new ApiResponse<>();
+        response.setResult(result);
+        return response;
+    }
+
+    // ================= READ ALL PAGED =================
+    @GetMapping("/paged")
+    public ApiResponse<PagedResponse<PromotionResponse>> getAllPromotionsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "promotionId") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        ApiResponse<PagedResponse<PromotionResponse>> response = new ApiResponse<>();
+        response.setResult(promotionService.getAllPromotionsPaged(pageable));
+        return response;
+    }
+
+    // ================= READ BY ID =================
+    @GetMapping("/{id}")
+    public ApiResponse<PromotionResponse> getPromotionById(@PathVariable int id) {
+        log.info("[GET] /promotions/{} - Get promotion by id", id);
+
+        PromotionResponse result = promotionService.getPromotionById(id);
+
+        log.info("[GET] /promotions/{} - SUCCESS | promoCode={}", id, result.getPromoCode());
+
+        ApiResponse<PromotionResponse> response = new ApiResponse<>();
+        response.setResult(result);
+        return response;
+    }
+
+    // ================= READ BY CODE =================
+    @GetMapping("/code/{promoCode}")
+    public ApiResponse<PromotionResponse> getPromotionByCode(@PathVariable String promoCode) {
+        log.info("[GET] /promotions/code/{} - Get promotion by code", promoCode);
+
+        PromotionResponse result = promotionService.getPromotionByCode(promoCode);
+
+        log.info("[GET] /promotions/code/{} - SUCCESS", promoCode);
+
+        ApiResponse<PromotionResponse> response = new ApiResponse<>();
+        response.setResult(result);
+        return response;
+    }
+
+    // ================= UPDATE =================
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<PromotionResponse> updatePromotion(
+            @PathVariable int id,
+            @RequestBody @Valid PromotionUpdateRequest request
+    ) {
+        log.info("[PUT] /promotions/{} - Update promotion", id);
+
+        PromotionResponse result = promotionService.updatePromotion(id, request);
+
+        log.info("[PUT] /promotions/{} - Update SUCCESS", id);
+
+        ApiResponse<PromotionResponse> response = new ApiResponse<>();
+        response.setResult(result);
+        return response;
+    }
+
+    // ================= DELETE =================
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<Void> deletePromotion(@PathVariable int id) {
+        log.warn("[DELETE] /promotions/{} - Delete promotion", id);
+
+        promotionService.deletePromotion(id);
+
+        log.warn("[DELETE] /promotions/{} - SUCCESS", id);
+
+        return new ApiResponse<>();
+    }
+
+    @PostMapping("/add-to-products")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<Void> addPromotionToProducts(@RequestBody @Valid AddPromotionToProductsRequest request) {
+        log.info("[POST] /promotions/add-to-products - Adding promotion {} to products", request.getPromotionId());
+
+        promotionService.addPromotionToProducts(request.getPromotionId(), request.getProductIds());
+
+        log.info("[POST] /promotions/add-to-products - SUCCESS");
+
+        return new ApiResponse<>();
+    }
+
+    @PostMapping("/add-to-category")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<Void> addPromotionToCategory(@RequestBody @Valid AddPromotionToCategoryRequest request) {
+        log.info("[POST] /promotions/add-to-category - Adding promotion {} to category {}", 
+                request.getPromotionId(), request.getCategoryId());
+
+        promotionService.addPromotionToCategory(request.getPromotionId(), request.getCategoryId());
+
+        log.info("[POST] /promotions/add-to-category - SUCCESS");
+
+        return new ApiResponse<>();
+    }
+
+    @PostMapping("/add-to-brand")
+    @PreAuthorize("hasAnyRole('STAFF','ADMIN')")
+    public ApiResponse<Void> addPromotionToBrand(@RequestBody @Valid AddPromotionToBrandRequest request) {
+        log.info("[POST] /promotions/add-to-brand - Adding promotion {} to brand {}", 
+                request.getPromotionId(), request.getBrandId());
+
+        promotionService.addPromotionToBrand(request.getPromotionId(), request.getBrandId());
+
+        log.info("[POST] /promotions/add-to-brand - SUCCESS");
+
+        return new ApiResponse<>();
+    }
+}

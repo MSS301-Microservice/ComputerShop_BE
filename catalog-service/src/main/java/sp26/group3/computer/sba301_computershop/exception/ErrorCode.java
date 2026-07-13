@@ -1,0 +1,51 @@
+package sp26.group3.computer.sba301_computershop.exception;
+
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+@Getter
+public enum ErrorCode {
+    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized Error", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNAUTHENTICATED(1003, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1004, "Unauthorized", HttpStatus.FORBIDDEN),
+    INVALID_KEY(1005, "Invalid key", HttpStatus.BAD_REQUEST),
+    INVALID_REQUEST_BODY(1008, "Invalid JSON request body", HttpStatus.BAD_REQUEST),
+
+    CATEGORY_NOT_FOUND(1011, "Category not found", HttpStatus.NOT_FOUND),
+    CATEGORY_SELF_PARENT(1013, "Category cannot be parent of itself", HttpStatus.BAD_REQUEST),
+    CATEGORY_HAS_CHILDREN(1014, "Cannot delete category with child categories", HttpStatus.BAD_REQUEST),
+
+    // Attribute errors
+    ATTRIBUTE_NOT_FOUND(4001, "Attribute not found", HttpStatus.NOT_FOUND),
+    ATTRIBUTE_NAME_EXISTED(4002, "Attribute name already exists", HttpStatus.BAD_REQUEST),
+
+    // Brand errors
+    BRAND_NOT_FOUND(5001, "Brand not found", HttpStatus.NOT_FOUND),
+    BRAND_NAME_EXISTED(5002, "Brand name already exists", HttpStatus.BAD_REQUEST),
+
+    // Product errors
+    PRODUCT_NOT_FOUND(6001, "Product not found", HttpStatus.NOT_FOUND),
+    PRODUCT_NAME_EXISTED(6002, "Product name already exists", HttpStatus.BAD_REQUEST),
+
+    // Product Variant errors
+    VARIANT_NOT_FOUND(6101, "Product variant not found", HttpStatus.NOT_FOUND),
+    SKU_EXISTED(6102, "SKU already exists", HttpStatus.BAD_REQUEST),
+    INSUFFICIENT_STOCK(6103, "Insufficient stock for variant", HttpStatus.BAD_REQUEST),
+
+    // File errors
+    FILE_UPLOAD_FAILED(7001, "Failed to upload file", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_DELETE_FAILED(7002, "Failed to delete file", HttpStatus.INTERNAL_SERVER_ERROR),
+    MAX_UPLOAD_SIZE_EXCEEDED(7003, "File size exceeds the maximum allowed limit (10MB per file)",
+            HttpStatus.BAD_REQUEST),
+    ;
+
+    private final int code;
+    private final String message;
+    private final HttpStatus statusCode;
+
+    ErrorCode(int code, String message, HttpStatus statusCode) {
+        this.code = code;
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+}

@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: computershop-catalog-service
+  config:
+    import: optional:file:.env[.properties]
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=ComputerShopCatalogDB;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: ${DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        use_nationalized_character_data: true
+
+server:
+  port: 8082
+  servlet:
+    context-path: /api/v1
+
+jwt:
+  # Phải giống hệt giá trị bên user-service/monolith remnant.
+  signer-key: ${JWT_SIGNER_KEY}
+  valid-duration: ${JWT_VALID_DURATION}
+  refreshable-duration: ${JWT_REFRESHABLE_DURATION}
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
+
+services:
+  monolith:
+    base-url: http://localhost:8080/api/v1
+
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}

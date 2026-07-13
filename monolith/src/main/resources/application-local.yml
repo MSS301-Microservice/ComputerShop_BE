@@ -1,0 +1,107 @@
+spring:
+  application:
+    name: SBA301_ComputerShop
+  # ===============================
+  # EMAIL CONFIG
+  # ===============================
+  # mail:
+  #   host: smtp.gmail.com
+  #   port: 587
+  #   username: ${EMAIL_ADDRESS}
+  #   password: ${PASSWORD}
+  #   properties:
+  #     mail:
+  #       smtp:
+  #         auth: true
+  #         starttls:
+  #           enable: true
+  #           required: true
+  # ===============================
+  # FILE UPLOAD LIMITS
+  # ===============================
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 50MB
+
+  # ===============================
+  # DATABASE (SQL SERVER - Docker)
+  # ===============================
+  datasource:
+    url: jdbc:sqlserver://localhost:1433;databaseName=ComputerShopDB;encrypt=true;trustServerCertificate=true
+    username: sa
+    password: ${DB_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+
+
+  # ===============================
+  # JPA / HIBERNATE
+  # ===============================
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        use_nationalized_character_data: true
+  # ===============================
+  # VERIFY OTP EMAIL
+  # ===============================
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+  servlet:
+      context-path: /api/v1
+
+  # ===============================
+  # JWT CONFIG (MAP FROM .env)
+  # ===============================
+jwt:
+  signer-key: ${JWT_SIGNER_KEY}
+  valid-duration: ${JWT_VALID_DURATION}
+  refreshable-duration: ${JWT_REFRESHABLE_DURATION}
+
+  # ===============================
+  # VNPAY CONFIG
+  # ===============================
+vnpay:
+  tmn-code: ${VNP_TMN_CODE}
+  hash-secret: ${VNP_HASH_SECRET}
+  pay-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
+  return-url: http://localhost:8080/api/v1/orders/payment/callback
+  ipn-url: https://seamus-monoecious-retractively.ngrok-free.dev/api/v1/orders/payment/vnp-ipn
+  version: "2.1.0"
+  command: "pay"
+  curr-code: "VND"
+  order-type: "other"
+  locale: "vn"
+
+  # ===============================
+  # USER-SERVICE (giao tiếp nội bộ, không qua Gateway)
+  # ===============================
+services:
+  user-service:
+    base-url: http://localhost:8081/api/v1
+  catalog-service:
+    base-url: http://localhost:8082/api/v1
+  cart-service:
+    base-url: http://localhost:8083/api/v1
+  order-service:
+    base-url: http://localhost:8085/api/v1
+
+internal:
+  api-key: ${INTERNAL_API_KEY}
